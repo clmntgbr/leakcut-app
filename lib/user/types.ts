@@ -1,7 +1,12 @@
 export interface User {
-  firstname?: string
-  lastname?: string
-  id?: string
+  id: string
+  clerkId: string
+  firstName?: string | null
+  lastName?: string | null
+  email: string
+  currentClientId?: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export interface UserState {
