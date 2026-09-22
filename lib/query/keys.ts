@@ -8,7 +8,10 @@ export const queryKeys = {
 
   videos: {
     all: ["videos"] as const,
-    detail: (videoId: string) => ["videos", videoId] as const,
+    lists: () => [...queryKeys.videos.all, "list"] as const,
+    list: (params?: PaginateParams) =>
+      [...queryKeys.videos.lists(), params ?? {}] as const,
+    detail: (videoId: string) => [...queryKeys.videos.all, videoId] as const,
   },
 
   clients: {

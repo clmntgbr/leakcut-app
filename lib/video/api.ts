@@ -1,10 +1,30 @@
 import { ApiError, parseApiError } from "@/lib/api-error"
 import {
+  toSearchParams,
+  type PaginateParams,
+  type Paginated,
+} from "@/lib/paginate"
+import {
   isTerminalVideoStatus,
   type RequestUploadUrlInput,
   type RequestUploadUrlResponse,
   type Video,
+  type VideoListItem,
 } from "./types"
+
+export async function listVideos(
+  params: PaginateParams = {}
+): Promise<Paginated<VideoListItem>> {
+  const response = await fetch(`/api/videos${toSearchParams(params)}`, {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response, "Failed to list videos")
+  }
+
+  return response.json()
+}
 
 export async function requestUploadUrl(
   input: RequestUploadUrlInput,

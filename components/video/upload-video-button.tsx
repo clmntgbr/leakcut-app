@@ -50,14 +50,12 @@ export function UploadVideoButton({
   const [pickError, setPickError] = React.useState<string | null>(null)
 
   const maxFileSizeMb = quota?.limits.maxFileSizeMb ?? null
-  const videoRef = React.useRef(video)
-  videoRef.current = video
 
   React.useEffect(() => {
     return () => {
-      if (videoRef.current) URL.revokeObjectURL(videoRef.current.previewUrl)
+      if (video) URL.revokeObjectURL(video.previewUrl)
     }
-  }, [])
+  }, [video])
 
   function handlePick() {
     if (disabled) return

@@ -19,10 +19,20 @@ export interface RequestUploadUrlResponse {
   expiresAt: string
 }
 
+export interface VideoListItem {
+  id: string
+  originalFilename: string | null
+  thumbnailUrl: string | null
+  status: VideoStatus
+  createdAt: string
+}
+
 export interface Video {
   id: string
   originalFilename: string | null
   storageKey: string
+  thumbnailKey: string | null
+  thumbnailUrl: string | null
   sizeBytes: number
   contentType: string | null
   status: VideoStatus
@@ -33,6 +43,12 @@ export interface Video {
   failureReason: string | null
   createdAt: string
   updatedAt: string
+}
+
+export function videoHasThumbnail(
+  video: Pick<VideoListItem, "thumbnailUrl">
+): boolean {
+  return Boolean(video.thumbnailUrl)
 }
 
 export const VIDEO_TERMINAL_STATUSES: readonly VideoStatus[] = [

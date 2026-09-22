@@ -1,12 +1,14 @@
 "use client"
 
 import { ApiError } from "@/lib/api-error"
+import type { PaginateParams } from "@/lib/paginate"
 import { queryKeys } from "@/lib/query/keys"
 import { useUser } from "@/lib/user/hooks"
-import { useQueryClient } from "@tanstack/react-query"
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
+  listVideos,
   pollVideoUntilSettled,
   requestUploadUrl,
   uploadFileToPresignedUrl,
@@ -159,4 +161,23 @@ export function useVideoUpload() {
   }, [currentClientId, queryClient])
 
   return { phase, progress, video, error, upload, reset }
+}
+
+const DEFAULT_LIST_PARAMS: Required<
+  Pick<PaginateParams, "page" | "limit" | "sortBy" | "orderBy">
+> = {
+  page: 1,
+  limit: 20,
+  sortBy: "created_at",
+  orderBy: "desc",
+}
+
+export function useVideos(params: PaginateParams = {}) {
+  const query = { ...DEFAULT_LIST_PARAMS, ...params }
+
+  return useQuery({
+    queryKey: queryKeys.videos.list(query),
+    queryFn: () => listVideos(query),
+    placeholderData: keepPreviousData,
+  })
 }
