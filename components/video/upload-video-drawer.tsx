@@ -20,6 +20,7 @@ import {
 import { useVideoUpload } from "@/lib/video/hooks"
 import { formatBytes, getVideoStatusLabel } from "@/lib/video/status"
 import { Loader2Icon, XIcon } from "lucide-react"
+import { useRef } from "react"
 
 export type SelectedVideo = {
   id: string
@@ -52,6 +53,7 @@ export function UploadVideoDrawer({
 }: UploadVideoDrawerProps) {
   const { phase, progress, video: uploaded, error, upload, reset } =
     useVideoUpload()
+  const closeAfterUploadRef = useRef(false)
 
   const isBusy =
     phase === "requesting" || phase === "uploading" || phase === "processing"
@@ -84,15 +86,23 @@ export function UploadVideoDrawer({
     clearSelection()
   }
 
-  async function handleUpload() {
+  function handleUpload() {
     if (!video || isBusy) return
-    await upload(video.file)
+    const file = video.file
+    closeAfterUploadRef.current = true
+    revokePreview(video)
+    onVideoChange(null)
+    onOpenChange(false)
+    void upload(file)
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    if (isBusy) return
     if (!nextOpen) {
-      clearSelection()
+      if (closeAfterUploadRef.current) {
+        closeAfterUploadRef.current = false
+      } else if (!isBusy) {
+        clearSelection()
+      }
     }
     onOpenChange(nextOpen)
   }
@@ -209,7 +219,7 @@ export function UploadVideoDrawer({
                   type="button"
                   className="w-full sm:w-auto"
                   disabled={!video || isBusy}
-                  onClick={() => void handleUpload()}
+                  onClick={handleUpload}
                 >
                   {isBusy ? (
                     <Loader2Icon className="size-4 animate-spin" />
