@@ -54,7 +54,12 @@ export async function getVideo(
     throw await parseApiError(response, "Failed to fetch video")
   }
 
-  return response.json()
+  const video = (await response.json()) as Video
+  return {
+    ...video,
+    jobs: video.jobs ?? [],
+    frames: video.frames ?? [],
+  }
 }
 
 export function uploadFileToPresignedUrl(

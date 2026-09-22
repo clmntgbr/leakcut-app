@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/empty-state"
 import { UploadVideoButton } from "@/components/video/upload-video-button"
 import { VideoAttachment } from "@/components/video/video-attachment"
+import { VideoDetailDrawer } from "@/components/video/video-detail-drawer"
 import { useVideos } from "@/lib/video/hooks"
 import { CloudUpload } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -16,6 +17,7 @@ const PAGE_LIMIT = 20
 
 export function VideosList() {
   const [page, setPage] = useState(1)
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null)
   const { data, isPending, isError, error, isFetching, refetch } = useVideos({
     page,
     limit: PAGE_LIMIT,
@@ -85,7 +87,10 @@ export function VideosList() {
       <ul className="flex flex-col gap-3">
         {videos.map((video) => (
           <li key={video.id}>
-            <VideoAttachment video={video} />
+            <VideoAttachment
+              video={video}
+              onSelect={(item) => setSelectedVideoId(item.id)}
+            />
           </li>
         ))}
       </ul>
@@ -119,6 +124,14 @@ export function VideosList() {
           </div>
         </div>
       ) : null}
+
+      <VideoDetailDrawer
+        videoId={selectedVideoId}
+        open={Boolean(selectedVideoId)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedVideoId(null)
+        }}
+      />
     </div>
   )
 }

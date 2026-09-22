@@ -8,12 +8,13 @@ import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-quer
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
+  getVideo,
   listVideos,
   pollVideoUntilSettled,
   requestUploadUrl,
   uploadFileToPresignedUrl,
 } from "./api"
-import type { Video } from "./types"
+import { isFailedVideoStatus, type Video } from "./types"
 
 export type VideoUploadPhase =
   | "idle"
@@ -59,7 +60,10 @@ export function useVideoUpload() {
     }
   }, [])
 
-  const upload = useCallback(async (file: File) => {
+  const upload = useCallback(async (
+    file: File,
+    options?: { onUploaded?: () => void }
+  ) => {
     if (inFlightRef.current) return
     inFlightRef.current = true
 
@@ -102,6 +106,7 @@ export function useVideoUpload() {
       if (!isCurrent()) return
 
       setPhase("processing")
+      options?.onUploaded?.()
       const settled = await pollVideoUntilSettled(
         videoId,
         controller.signal,
@@ -112,7 +117,7 @@ export function useVideoUpload() {
 
       if (!isCurrent()) return
 
-      if (settled.status === "frames_ready") {
+      if (settled.status === "classified") {
         setPhase("done")
         void queryClient.invalidateQueries({ queryKey: queryKeys.videos.all })
         if (currentClientId) {
@@ -122,8 +127,8 @@ export function useVideoUpload() {
         }
         toast.success(
           settled.frameCount === 1
-            ? "Video ready — 1 frame kept"
-            : `Video ready — ${settled.frameCount} frames kept`
+            ? "Video classified — 1 frame kept"
+            : `Video classified — ${settled.frameCount} frames kept`
         )
         return
       }
@@ -136,7 +141,11 @@ export function useVideoUpload() {
         return
       }
 
-      const failedMessage = settled.failureReason ?? "Frame extraction failed"
+      const failedMessage =
+        settled.failureReason ??
+        (isFailedVideoStatus(settled.status)
+          ? "Video processing failed"
+          : "Frame extraction failed")
       setPhase("failed")
       setError(failedMessage)
       toast.error(failedMessage)
@@ -160,6 +169,7 @@ export function useVideoUpload() {
     }
   }, [currentClientId, queryClient])
 
+
   return { phase, progress, video, error, upload, reset }
 }
 
@@ -179,5 +189,13 @@ export function useVideos(params: PaginateParams = {}) {
     queryKey: queryKeys.videos.list(query),
     queryFn: () => listVideos(query),
     placeholderData: keepPreviousData,
+  })
+}
+
+export function useVideo(videoId: string | null) {
+  return useQuery({
+    queryKey: queryKeys.videos.detail(videoId ?? ""),
+    queryFn: ({ signal }) => getVideo(videoId!, signal),
+    enabled: Boolean(videoId),
   })
 }

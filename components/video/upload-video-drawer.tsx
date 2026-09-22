@@ -82,6 +82,7 @@ export function UploadVideoDrawer({
   }
 
   function handleCancel() {
+    if (isBusy) return
     onOpenChange(false)
     clearSelection()
   }
@@ -89,11 +90,16 @@ export function UploadVideoDrawer({
   function handleUpload() {
     if (!video || isBusy) return
     const file = video.file
-    closeAfterUploadRef.current = true
-    revokePreview(video)
-    onVideoChange(null)
-    onOpenChange(false)
-    void upload(file)
+    void upload(file, {
+      onUploaded: () => {
+        closeAfterUploadRef.current = true
+        window.setTimeout(() => {
+          revokePreview(video)
+          onVideoChange(null)
+          onOpenChange(false)
+        }, 450)
+      },
+    })
   }
 
   function handleOpenChange(nextOpen: boolean) {
@@ -115,8 +121,8 @@ export function UploadVideoDrawer({
         : "Processing…"
     : isDone
       ? uploaded
-        ? `${getVideoStatusLabel("frames_ready")} — ${uploaded.frameCount} frame${uploaded.frameCount === 1 ? "" : "s"} kept`
-        : getVideoStatusLabel("frames_ready")
+        ? `${getVideoStatusLabel("classified")} — ${uploaded.frameCount} frame${uploaded.frameCount === 1 ? "" : "s"} kept`
+        : getVideoStatusLabel("classified")
       : video
         ? `${fileExtensionLabel(video.file)} · ${formatBytes(video.file.size)}`
         : null
@@ -211,6 +217,7 @@ export function UploadVideoDrawer({
                 variant="outline"
                 className="w-full sm:w-auto"
                 onClick={handleCancel}
+                disabled={isBusy}
               >
                 {isDone ? "Close" : "Cancel"}
               </Button>

@@ -10,6 +10,8 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { getVideoStatusLabel } from "@/lib/video/status"
 import {
+  isClassifiedVideoStatus,
+  isFailedVideoStatus,
   videoHasThumbnail,
   type VideoListItem,
   type VideoStatus,
@@ -31,11 +33,17 @@ function toAttachmentState(
     case "uploaded":
     case "extraction_queued":
     case "extracting":
+    case "frames_ready":
+    case "ocr_processing":
+    case "ocr_ready":
+    case "classifying":
       return "processing"
     case "extraction_failed":
+    case "ocr_failed":
+    case "classify_failed":
     case "upload_expired":
       return "error"
-    case "frames_ready":
+    case "classified":
       return "done"
     default:
       return "idle"
@@ -49,11 +57,17 @@ function StatusIcon({ status }: { status: VideoStatus }) {
     case "uploaded":
     case "extraction_queued":
     case "extracting":
+    case "frames_ready":
+    case "ocr_processing":
+    case "ocr_ready":
+    case "classifying":
       return <Spinner />
     case "extraction_failed":
+    case "ocr_failed":
+    case "classify_failed":
     case "upload_expired":
       return <FileWarningIcon />
-    case "frames_ready":
+    case "classified":
       return <CheckIcon />
     default:
       return <FilmIcon />
@@ -69,24 +83,24 @@ export function VideoAttachment({ video, onSelect }: VideoAttachmentProps) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false)
   const state = toAttachmentState(video.status)
   const showThumbnail = videoHasThumbnail(video) && !thumbnailFailed
-  const isFailed =
-    video.status === "extraction_failed" || video.status === "upload_expired"
+  const isFailed = isFailedVideoStatus(video.status)
+  const canSelect = Boolean(onSelect) && isClassifiedVideoStatus(video.status)
 
   return (
     <Attachment
       state={state}
       className={
-        onSelect ? "w-full cursor-pointer items-center" : "w-full items-center"
+        canSelect ? "w-full cursor-pointer items-center" : "w-full items-center"
       }
-      role={onSelect ? "button" : undefined}
-      tabIndex={onSelect ? 0 : undefined}
-      onClick={onSelect ? () => onSelect(video) : undefined}
+      role={canSelect ? "button" : undefined}
+      tabIndex={canSelect ? 0 : undefined}
+      onClick={canSelect ? () => onSelect?.(video) : undefined}
       onKeyDown={
-        onSelect
+        canSelect
           ? (event) => {
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault()
-                onSelect(video)
+                onSelect?.(video)
               }
             }
           : undefined

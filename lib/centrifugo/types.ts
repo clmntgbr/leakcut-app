@@ -1,29 +1,26 @@
 export type UserEventType = "user.created" | "user.updated" | "user.deleted"
 
-export type VideoEventType =
-  | "video.created"
-  | "video.uploaded"
-  | "video.frames_extracted"
-  | "video.frame_extraction_failed"
-  | "video.upload_expired"
+export type VideoEventType = "video.created" | "video.uploaded"
 
-export type RealtimeEventType = UserEventType | VideoEventType
+export type JobEventType = "job.updated"
+
+export type RealtimeEventType = UserEventType | VideoEventType | JobEventType
 
 export interface UserStreamEvent {
   type: string
   eventId?: string
   userId?: string
-  clerkId?: string
-  firstName?: string
-  lastName?: string
-  email?: string
   videoId?: string
+  originalFilename?: string
   status?: string
-  filename?: string
-  storageKey?: string
+  videoStatus?: string
+  id?: string
+  jobType?: string
   frameCount?: number
-  reason?: string
-  timestamp?: string
+  expectedFrameCount?: number
+  ocrCompletedCount?: number
+  failureReason?: string
+  occurredAt?: string
 }
 
 const EVENT_TYPES = new Set<string>([
@@ -32,9 +29,7 @@ const EVENT_TYPES = new Set<string>([
   "user.deleted",
   "video.created",
   "video.uploaded",
-  "video.frames_extracted",
-  "video.frame_extraction_failed",
-  "video.upload_expired",
+  "job.updated",
 ])
 
 export function canonicalizeRealtimeType(type: string): string {
@@ -62,6 +57,10 @@ export function shouldRefreshUser(event: UserStreamEvent): boolean {
   )
 }
 
-export function shouldRefreshVideo(event: UserStreamEvent): boolean {
-  return canonicalizeRealtimeType(event.type).startsWith("video.")
+export function shouldRefreshVideos(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "video.created") ||
+    eventTypeEquals(event, "video.uploaded") ||
+    eventTypeEquals(event, "job.updated")
+  )
 }
