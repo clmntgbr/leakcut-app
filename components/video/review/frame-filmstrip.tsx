@@ -28,8 +28,8 @@ export function FrameFilmstrip({
   }, [activeFrameId])
 
   return (
-    <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-      <div className="flex w-max gap-1.5 p-2">
+    <ScrollArea className="w-full max-w-full min-w-0 overflow-hidden whitespace-nowrap rounded-md border">
+      <div className="flex w-max max-w-none gap-1.5 p-2">
         {frames.map((frame) => (
           <button
             key={frame.id}

@@ -112,10 +112,10 @@ export function VideoReviewPage({ video }: { video: Video }) {
   }, [])
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
       <VideoHeader video={video} />
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 lg:grid-cols-[7fr_3fr]">
+      <div className="grid min-h-[min(52vh,480px)] min-w-0 grid-cols-1 gap-2 lg:grid-cols-[7fr_3fr]">
         <VideoPlayerCard
           videoRef={videoRef}
           videoUrl={video.videoUrl}
@@ -148,7 +148,7 @@ export function VideoReviewPage({ video }: { video: Video }) {
         <RiskPanel scores={scores} formats={formats} />
       </div>
 
-      <section className="space-y-2">
+      <section className="min-w-0 space-y-2">
         <RiskTimelineChart
           data={chartData}
           currentTimeMs={currentTimeMs}
