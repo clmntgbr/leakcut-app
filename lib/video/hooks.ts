@@ -192,10 +192,13 @@ export function useVideos(params: PaginateParams = {}) {
   })
 }
 
+const PRESIGNED_URL_REFRESH_MS = 50 * 60 * 1000
+
 export function useVideo(videoId: string | null) {
   return useQuery({
     queryKey: queryKeys.videos.detail(videoId ?? ""),
     queryFn: ({ signal }) => getVideo(videoId!, signal),
     enabled: Boolean(videoId),
+    refetchInterval: PRESIGNED_URL_REFRESH_MS,
   })
 }

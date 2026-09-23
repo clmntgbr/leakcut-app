@@ -1,0 +1,69 @@
+"use client"
+
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
+import {
+  EmptyErrorState,
+  EmptyLoadingState,
+} from "@/components/ui/empty-state"
+import { VideoReviewPage } from "@/components/video/review/video-review-page"
+import { useVideo } from "@/lib/video/hooks"
+
+export interface VideoDetailDrawerProps {
+  videoId: string | null
+  onOpenChange: (open: boolean) => void
+}
+
+export function VideoDetailDrawer({
+  videoId,
+  onOpenChange,
+}: VideoDetailDrawerProps) {
+  const { data: video, isPending, isError, error } = useVideo(videoId)
+
+  return (
+    <Drawer
+      open={Boolean(videoId)}
+      onOpenChange={onOpenChange}
+      direction="right"
+    >
+      <DrawerContent
+        className="flex h-full w-[80vw]! max-w-[80vw]! flex-col bg-background"
+        style={{ width: "80vw", maxWidth: "80vw" }}
+      >
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>
+            {video?.originalFilename ?? "Video review"}
+          </DrawerTitle>
+          <DrawerDescription>
+            Review classified frames and detected risk over time.
+          </DrawerDescription>
+        </DrawerHeader>
+
+        <div className="flex min-h-0 flex-1 flex-col overflow-auto p-3">
+          {isPending && !video ? (
+            <EmptyLoadingState
+              title="Loading review…"
+              description="Fetching the video, frames and findings."
+            />
+          ) : isError && !video ? (
+            <EmptyErrorState
+              title="Unable to load this video"
+              description={
+                error instanceof Error
+                  ? error.message
+                  : "Please try again in a moment."
+              }
+            />
+          ) : video ? (
+            <VideoReviewPage video={video} />
+          ) : null}
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
+}

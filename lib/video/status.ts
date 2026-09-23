@@ -23,6 +23,8 @@ export const FINDING_CATEGORY_LABELS: Record<string, string> = {
   password: "Password",
   credit_card: "Credit card",
   phone: "Phone",
+  phone_number: "Phone",
+  other: "Other",
   private_key: "Private key",
   personal_id: "Personal ID",
   connection_string: "Connection string",
