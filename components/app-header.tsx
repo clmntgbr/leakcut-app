@@ -1,6 +1,5 @@
 "use client"
 
-import { openSubscriptionDrawer } from "@/components/billing/subscription-drawer-host"
 import { UploadVideoButton } from "@/components/video/upload-video-button"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"

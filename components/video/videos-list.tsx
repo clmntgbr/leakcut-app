@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/empty-state"
 import { UploadVideoButton } from "@/components/video/upload-video-button"
 import { VideoAttachment } from "@/components/video/video-attachment"
-import { VideoDetailDrawer } from "@/components/video/video-detail-drawer"
 import { useVideos } from "@/lib/video/hooks"
 import { CloudUpload } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -124,14 +123,6 @@ export function VideosList() {
           </div>
         </div>
       ) : null}
-
-      <VideoDetailDrawer
-        videoId={selectedVideoId}
-        open={Boolean(selectedVideoId)}
-        onOpenChange={(open) => {
-          if (!open) setSelectedVideoId(null)
-        }}
-      />
     </div>
   )
 }

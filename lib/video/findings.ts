@@ -30,6 +30,15 @@ export function confidentialFrameCount(frames: VideoFrame[]): number {
   return frames.filter((frame) => frame.finding?.confidential).length
 }
 
+export function isDetectedFrame(frame: VideoFrame): boolean {
+  if (frame.finding?.confidential) return true
+  return (frame.finding?.categories ?? []).some(isCategoryFound)
+}
+
+export function detectedFrames(frames: VideoFrame[]): VideoFrame[] {
+  return frames.filter(isDetectedFrame)
+}
+
 export function frameRisk(
   frame: VideoFrame,
   question: string | null
