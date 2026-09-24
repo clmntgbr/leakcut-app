@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertBanner } from "@/components/video/review/alert-banner"
 import { PlayerControls } from "@/components/video/review/player-controls"
+import { frameNumber } from "@/lib/video/findings"
 import { formatClock } from "@/lib/video/status"
 import type { VideoFrame } from "@/lib/video/types"
 import { cn } from "cn"
@@ -50,9 +51,10 @@ export function VideoPlayerCard({
   onPlayingChange,
   onEnded,
 }: VideoPlayerCardProps) {
-  const frameNumber = activeFrame
-    ? frames.findIndex((frame) => frame.id === activeFrame.id) + 1
-    : 0
+  const position = activeFrame
+    ? frames.findIndex((frame) => frame.id === activeFrame.id)
+    : -1
+  const currentFrameNumber = activeFrame ? frameNumber(activeFrame) : 0
 
   return (
     <Card size="sm" className="h-full min-h-0 gap-2 py-2">
@@ -65,6 +67,7 @@ export function VideoPlayerCard({
               poster={thumbnailUrl ?? undefined}
               className={cn(
                 "max-h-full max-w-full transition-all",
+                !playing && activeFrame?.imageUrl && "invisible",
                 blur && "blur-xl"
               )}
               playsInline
@@ -77,18 +80,38 @@ export function VideoPlayerCard({
               onPause={() => onPlayingChange(false)}
               onEnded={onEnded}
             />
-          ) : (
+          ) : !activeFrame?.imageUrl ? (
             <div className="flex flex-col items-center gap-1 text-white/70">
               <FilmIcon className="size-6" />
               <p className="text-xs">Video unavailable</p>
             </div>
-          )}
+          ) : null}
+          {!playing && activeFrame?.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={activeFrame.imageUrl}
+              alt={
+                currentFrameNumber
+                  ? `Frame ${currentFrameNumber}`
+                  : "Active frame"
+              }
+              className={cn(
+                "absolute inset-0 size-full object-contain",
+                blur && "blur-xl"
+              )}
+            />
+          ) : null}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between bg-linear-to-t from-black/70 to-transparent px-2 py-1.5 text-[11px] tabular-nums text-white/90">
             <span>
-              {formatClock(currentTimeMs)} / {formatClock(durationMs)}
+              {formatClock(
+                !playing && activeFrame
+                  ? activeFrame.timestampMs
+                  : currentTimeMs
+              )}{" "}
+              / {formatClock(durationMs)}
             </span>
             <span>
-              Frame {frameNumber} / {frames.length || "—"}
+              Frame {currentFrameNumber} / {frames.length || "—"}
             </span>
           </div>
         </div>
@@ -96,8 +119,8 @@ export function VideoPlayerCard({
         <AlertBanner visible={showAlert} />
         <PlayerControls
           playing={playing}
-          canGoPrevious={Boolean(activeFrame && frameNumber > 1)}
-          canGoNext={Boolean(activeFrame && frameNumber < frames.length)}
+          canGoPrevious={position > 0}
+          canGoNext={position >= 0 && position < frames.length - 1}
           blur={blur}
           onTogglePlay={onTogglePlay}
           onPrevious={onPrevious}

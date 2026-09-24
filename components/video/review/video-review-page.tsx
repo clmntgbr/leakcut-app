@@ -10,6 +10,7 @@ import {
   frameDisplayName,
   groupScores,
   hasConfidentialFinding,
+  seekTimeMsForFrame,
   sensitiveFormats,
   sortedFrames,
   timelinePoints,
@@ -22,6 +23,8 @@ export function VideoReviewPage({ video }: { video: Video }) {
   const rafRef = useRef<number | null>(null)
   const currentTimeMsRef = useRef(0)
   const playingRef = useRef(false)
+  const pinnedFrameIdRef = useRef<string | null>(null)
+  const [pinnedFrameId, setPinnedFrameId] = useState<string | null>(null)
   const [currentTimeMs, setCurrentTimeMs] = useState(0)
   const [durationMs, setDurationMs] = useState(0)
   const [playing, setPlaying] = useState(false)
@@ -30,10 +33,15 @@ export function VideoReviewPage({ video }: { video: Video }) {
   const frames = useMemo(() => sortedFrames(video.frames), [video.frames])
   const chartData = useMemo(() => timelinePoints(frames), [frames])
   const showAlert = useMemo(() => hasConfidentialFinding(frames), [frames])
-  const activeFrame = useMemo(
+  const playheadFrame = useMemo(
     () => enclosingFrame(frames, currentTimeMs),
     [frames, currentTimeMs]
   )
+  const pinnedFrame = useMemo(
+    () => frames.find((frame) => frame.id === pinnedFrameId) ?? null,
+    [frames, pinnedFrameId]
+  )
+  const activeFrame = !playing && pinnedFrame ? pinnedFrame : playheadFrame
   const activeFrames = useMemo(
     () => (activeFrame ? [activeFrame] : []),
     [activeFrame]
@@ -42,6 +50,8 @@ export function VideoReviewPage({ video }: { video: Video }) {
   const formats = useMemo(() => sensitiveFormats(activeFrames), [activeFrames])
 
   const seekTo = useCallback((timeMs: number) => {
+    pinnedFrameIdRef.current = null
+    setPinnedFrameId(null)
     const next = Math.max(0, timeMs)
     const element = videoRef.current
     if (element) element.currentTime = next / 1000
@@ -49,12 +59,15 @@ export function VideoReviewPage({ video }: { video: Video }) {
     setCurrentTimeMs(next)
   }, [])
 
-  const seekToFrame = useCallback(
-    (frame: VideoFrame) => {
-      seekTo(frame.timestampMs)
-    },
-    [seekTo]
-  )
+  const seekToFrame = useCallback((frame: VideoFrame) => {
+    pinnedFrameIdRef.current = frame.id
+    setPinnedFrameId(frame.id)
+    const next = Math.max(0, seekTimeMsForFrame(frames, frame))
+    const element = videoRef.current
+    if (element) element.currentTime = next / 1000
+    currentTimeMsRef.current = next
+    setCurrentTimeMs(next)
+  }, [frames])
 
   const handleTimeUpdate = useCallback(() => {
     if (rafRef.current != null) return
@@ -63,6 +76,13 @@ export function VideoReviewPage({ video }: { video: Video }) {
       const element = videoRef.current
       if (!element) return
       const next = element.currentTime * 1000
+      if (
+        pinnedFrameIdRef.current &&
+        !playingRef.current &&
+        Math.abs(next - currentTimeMsRef.current) < 120
+      ) {
+        return
+      }
       currentTimeMsRef.current = next
       setCurrentTimeMs(next)
     })
@@ -94,6 +114,8 @@ export function VideoReviewPage({ video }: { video: Video }) {
   useEffect(() => {
     currentTimeMsRef.current = 0
     playingRef.current = false
+    pinnedFrameIdRef.current = null
+    setPinnedFrameId(null)
     setCurrentTimeMs(0)
     setDurationMs(0)
     setPlaying(false)

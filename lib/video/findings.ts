@@ -125,11 +125,15 @@ export function sortedFrames(frames: VideoFrame[]): VideoFrame[] {
   )
 }
 
-export function frameDisplayName(frame: VideoFrame): string {
-  const fromKey = frame.storageKey.split("/").pop()
-  if (fromKey) return fromKey
-  return `frame_${String(frame.index).padStart(6, "0")}`
+export function frameNumber(frame: VideoFrame): number {
+  return frame.index + 1
 }
+
+export function frameDisplayName(frame: VideoFrame): string {
+  return `Frame ${frameNumber(frame)}`
+}
+
+const SEEK_JITTER_MS = 40
 
 export function enclosingFrame(
   frames: VideoFrame[],
@@ -138,8 +142,15 @@ export function enclosingFrame(
   if (frames.length === 0) return null
   let current: VideoFrame | null = null
   for (const frame of frames) {
-    if (frame.timestampMs <= timeMs) current = frame
+    if (frame.timestampMs <= timeMs + SEEK_JITTER_MS) current = frame
     else break
   }
   return current ?? frames[0]
+}
+
+export function seekTimeMsForFrame(
+  _frames: VideoFrame[],
+  frame: VideoFrame
+): number {
+  return frame.timestampMs
 }
