@@ -17,6 +17,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
+import { Progress } from "@/components/ui/progress"
 import { useVideoUpload } from "@/lib/video/hooks"
 import { formatBytes, getVideoStatusLabel } from "@/lib/video/status"
 import { Loader2Icon, XIcon } from "lucide-react"
@@ -113,9 +114,10 @@ export function UploadVideoDrawer({
     onOpenChange(nextOpen)
   }
 
+  const isUploading = phase === "requesting" || phase === "uploading"
   const description = isBusy
-    ? phase === "uploading"
-      ? `Uploading… ${progress}%`
+    ? isUploading
+      ? null
       : uploaded
         ? getVideoStatusLabel(uploaded.status)
         : "Processing…"
@@ -171,9 +173,15 @@ export function UploadVideoDrawer({
                     </AttachmentMedia>
                     <AttachmentContent>
                       <AttachmentTitle>{video.file.name}</AttachmentTitle>
-                      <AttachmentDescription>
-                        {description}
-                      </AttachmentDescription>
+                      <div className="mt-0.5 flex h-4 items-center">
+                        {isUploading ? (
+                          <Progress value={progress} className="h-1.5 w-full" />
+                        ) : description ? (
+                          <AttachmentDescription className="mt-0">
+                            {description}
+                          </AttachmentDescription>
+                        ) : null}
+                      </div>
                     </AttachmentContent>
                     {!isBusy ? (
                       <AttachmentActions className="group-data-[orientation=vertical]/attachment:-end-2.5! group-data-[orientation=vertical]/attachment:-top-2.5!">

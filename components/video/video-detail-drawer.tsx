@@ -33,12 +33,12 @@ export function VideoDetailDrawer({
       direction="right"
     >
       <DrawerContent
-        className="flex h-full w-[80vw]! max-w-[80vw]! flex-col overflow-hidden bg-background"
-        style={{ width: "80vw", maxWidth: "80vw" }}
+        className="flex h-full w-[80vw]! max-w-[80vw]! flex-col"
+        style={{ width: "80vw", maxWidth: "80vw", backgroundColor: "#f9f9f9" }}
       >
-        <DrawerHeader className="sr-only">
+        <DrawerHeader className="hidden">
           <DrawerTitle>
-            {video?.originalFilename ?? "Video review"}
+            Video review
           </DrawerTitle>
           <DrawerDescription>
             Review classified frames and detected risk over time.

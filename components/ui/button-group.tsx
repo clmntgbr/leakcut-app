@@ -10,9 +10,9 @@ const buttonGroupVariants = cva(
     variants: {
       orientation: {
         horizontal:
-          "[&>button:not(:first-of-type)]:rounded-s-none [&>button:not(:first-of-type)]:border-s-0 [&>button:not(:last-of-type)]:rounded-e-none [&>[data-slot=select-trigger]:not(:first-of-type)]:rounded-s-none [&>[data-slot=select-trigger]:not(:first-of-type)]:border-s-0 [&>[data-slot=select-trigger]:not(:last-of-type)]:rounded-e-none",
+          "[&>*:not(:first-child)]:rounded-s-none [&>*:not(:first-child)]:border-s-0 [&>*:not(:last-child)]:rounded-e-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-e-lg!",
         vertical:
-          "flex-col [&>button:not(:first-of-type)]:rounded-t-none [&>button:not(:first-of-type)]:border-t-0 [&>button:not(:last-of-type)]:rounded-b-none [&>[data-slot=select-trigger]:not(:first-of-type)]:rounded-t-none [&>[data-slot=select-trigger]:not(:first-of-type)]:border-t-0 [&>[data-slot=select-trigger]:not(:last-of-type)]:rounded-b-none",
+          "flex-col [&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg!",
       },
     },
     defaultVariants: {
