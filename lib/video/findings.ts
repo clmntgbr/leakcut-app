@@ -125,6 +125,12 @@ export function sortedFrames(frames: VideoFrame[]): VideoFrame[] {
   )
 }
 
+export function frameDisplayName(frame: VideoFrame): string {
+  const fromKey = frame.storageKey.split("/").pop()
+  if (fromKey) return fromKey
+  return `frame_${String(frame.index).padStart(6, "0")}`
+}
+
 export function enclosingFrame(
   frames: VideoFrame[],
   timeMs: number

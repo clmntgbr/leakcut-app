@@ -7,6 +7,7 @@ import { VideoHeader } from "@/components/video/review/video-header"
 import { VideoPlayerCard } from "@/components/video/review/video-player-card"
 import {
   enclosingFrame,
+  frameDisplayName,
   groupScores,
   hasConfidentialFinding,
   sensitiveFormats,
@@ -27,14 +28,18 @@ export function VideoReviewPage({ video }: { video: Video }) {
   const [blur, setBlur] = useState(false)
 
   const frames = useMemo(() => sortedFrames(video.frames), [video.frames])
-  const scores = useMemo(() => groupScores(frames), [frames])
-  const formats = useMemo(() => sensitiveFormats(frames), [frames])
   const chartData = useMemo(() => timelinePoints(frames), [frames])
   const showAlert = useMemo(() => hasConfidentialFinding(frames), [frames])
   const activeFrame = useMemo(
     () => enclosingFrame(frames, currentTimeMs),
     [frames, currentTimeMs]
   )
+  const activeFrames = useMemo(
+    () => (activeFrame ? [activeFrame] : []),
+    [activeFrame]
+  )
+  const scores = useMemo(() => groupScores(activeFrames), [activeFrames])
+  const formats = useMemo(() => sensitiveFormats(activeFrames), [activeFrames])
 
   const seekTo = useCallback((timeMs: number) => {
     const next = Math.max(0, timeMs)
@@ -115,7 +120,7 @@ export function VideoReviewPage({ video }: { video: Video }) {
     <div className="flex min-w-0 flex-col gap-2">
       <VideoHeader video={video} />
 
-      <div className="grid min-h-[min(52vh,480px)] min-w-0 grid-cols-1 gap-2 lg:grid-cols-[7fr_3fr]">
+      <div className="grid min-w-0 grid-cols-1 gap-2 lg:grid-cols-[7fr_3fr]">
         <VideoPlayerCard
           videoRef={videoRef}
           videoUrl={video.videoUrl}
@@ -145,7 +150,12 @@ export function VideoReviewPage({ video }: { video: Video }) {
             setPlaying(false)
           }}
         />
-        <RiskPanel scores={scores} formats={formats} />
+        <RiskPanel
+          scores={scores}
+          formats={formats}
+          ocrText={activeFrame?.ocrText ?? ""}
+          frameName={activeFrame ? frameDisplayName(activeFrame) : null}
+        />
       </div>
 
       <section className="min-w-0 space-y-2">
