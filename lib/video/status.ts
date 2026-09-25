@@ -16,7 +16,7 @@ export const VIDEO_STATUS_LABELS: Record<VideoStatus, string> = {
   upload_expired: "Upload expired",
 }
 
-export const FINDING_CATEGORY_LABELS: Record<string, string> = {
+export const CLASSIFICATION_CATEGORY_LABELS: Record<string, string> = {
   email: "Email",
   iban: "IBAN",
   api_key: "API key",
@@ -39,8 +39,8 @@ export function getVideoStatusLabel(status: string): string {
   return VIDEO_STATUS_LABELS[status as VideoStatus] ?? status
 }
 
-export function getFindingCategoryLabel(name: string): string {
-  return FINDING_CATEGORY_LABELS[name] ?? name.replaceAll("_", " ")
+export function getClassificationCategoryLabel(name: string): string {
+  return CLASSIFICATION_CATEGORY_LABELS[name] ?? name.replaceAll("_", " ")
 }
 
 export function formatBytes(bytes: number): string {

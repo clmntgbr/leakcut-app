@@ -9,7 +9,7 @@ import {
   enclosingFrame,
   frameDisplayName,
   groupScores,
-  hasConfidentialFinding,
+  hasConfidentialClassification,
   seekTimeMsForFrame,
   sensitiveFormats,
   sortedFrames,
@@ -32,7 +32,10 @@ export function VideoReviewPage({ video }: { video: Video }) {
 
   const frames = useMemo(() => sortedFrames(video.frames), [video.frames])
   const chartData = useMemo(() => timelinePoints(frames), [frames])
-  const showAlert = useMemo(() => hasConfidentialFinding(frames), [frames])
+  const showAlert = useMemo(
+    () => hasConfidentialClassification(frames),
+    [frames]
+  )
   const playheadFrame = useMemo(
     () => enclosingFrame(frames, currentTimeMs),
     [frames, currentTimeMs]

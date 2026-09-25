@@ -45,18 +45,29 @@ export interface VideoJob {
   failureReason?: string | null
 }
 
-export interface FindingCategory {
+export interface ClassificationCategory {
   name: string
   probability: number
 }
 
-export interface FrameFinding {
+export interface FrameClassification {
   id: string
   confidential: boolean
   probability: number
-  categories: FindingCategory[]
+  categories: ClassificationCategory[]
   status: string
   errorReason?: string | null
+}
+
+export interface OcrBoxPoint {
+  x: number
+  y: number
+}
+
+export interface OcrLine {
+  text: string
+  confidence: number
+  box: OcrBoxPoint[]
 }
 
 export interface VideoFrame {
@@ -66,12 +77,14 @@ export interface VideoFrame {
   storageKey: string
   imageUrl: string | null
   selectionReason: string
-  diffScore: number
+  diffScore?: number
+  phashDistance?: number
   ocrText: string
   ocrStatus: string | null
   ocrConfidence: number
   ocrErrorReason: string | null
-  finding: FrameFinding | null
+  ocrLines?: OcrLine[] | null
+  classification: FrameClassification | null
 }
 
 export interface Video {

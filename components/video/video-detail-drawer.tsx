@@ -53,7 +53,7 @@ export function VideoDetailDrawer({
             {isPending && !video ? (
               <EmptyLoadingState
                 title="Loading review…"
-                description="Fetching the video, frames and findings."
+                description="Fetching the video, frames and classification."
               />
             ) : isError && !video ? (
               <EmptyErrorState

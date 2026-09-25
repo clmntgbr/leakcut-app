@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertBanner } from "@/components/video/review/alert-banner"
+import { OcrBoxesOverlay } from "@/components/video/review/ocr-boxes-overlay"
 import { PlayerControls } from "@/components/video/review/player-controls"
 import { frameNumber } from "@/lib/video/findings"
 import { formatClock } from "@/lib/video/status"
@@ -87,19 +88,27 @@ export function VideoPlayerCard({
             </div>
           ) : null}
           {!playing && activeFrame?.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={activeFrame.imageUrl}
-              alt={
-                currentFrameNumber
-                  ? `Frame ${currentFrameNumber}`
-                  : "Active frame"
-              }
-              className={cn(
-                "absolute inset-0 size-full object-contain",
-                blur && "blur-xl"
-              )}
-            />
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activeFrame.imageUrl}
+                alt={
+                  currentFrameNumber
+                    ? `Frame ${currentFrameNumber}`
+                    : "Active frame"
+                }
+                className={cn(
+                  "absolute inset-0 size-full object-contain",
+                  blur && "blur-xl"
+                )}
+              />
+              {!blur ? (
+                <OcrBoxesOverlay
+                  frame={activeFrame}
+                  imageUrl={activeFrame.imageUrl}
+                />
+              ) : null}
+            </>
           ) : null}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between bg-linear-to-t from-black/70 to-transparent px-2 py-1.5 text-[11px] tabular-nums text-white/90">
             <span>
